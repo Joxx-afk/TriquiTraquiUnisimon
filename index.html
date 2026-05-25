@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingeniería de Datos e IA - Tic Tac Toe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div id="particles-js"></div>
+
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">🤖</span>
+            <h1>Ingeniería de Datos e IA</h1>
+            <span class="badge">Universidad Simón Bolívar</span>
+        </div>
+        <div class="header-stats">
+            <div class="stat-box">
+                <span class="stat-label">Torneos Ganados</span>
+                <span class="stat-value" id="tournaments-won">0</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">Nivel Actual</span>
+                <span class="stat-value text-neon">Ingeniero Junior</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard">
+        <!-- PANEL IZQUIERDO: JUEGO -->
+        <section class="panel game-panel">
+            <div class="panel-header">
+                <h2>Campo de Pruebas</h2>
+                <div class="controls">
+                    <label for="difficulty">Nivel de IA:</label>
+                    <select id="difficulty" class="neon-select">
+                        <option value="easy">Fácil (Básico)</option>
+                        <option value="medium">Medio (Heurística)</option>
+                        <option value="hard" selected>Difícil (Minimax)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="message-banner" id="message-banner">
+                <p>¡Bienvenido! Juega contra la IA y observa cómo piensa.</p>
+            </div>
+
+            <div class="board-container">
+                <div class="board" id="board">
+                    <div class="cell" data-index="0"></div>
+                    <div class="cell" data-index="1"></div>
+                    <div class="cell" data-index="2"></div>
+                    <div class="cell" data-index="3"></div>
+                    <div class="cell" data-index="4"></div>
+                    <div class="cell" data-index="5"></div>
+                    <div class="cell" data-index="6"></div>
+                    <div class="cell" data-index="7"></div>
+                    <div class="cell" data-index="8"></div>
+                </div>
+            </div>
+
+            <div class="game-controls">
+                <button id="btn-restart" class="btn btn-primary">Reiniciar Sistema</button>
+                <div class="score-board">
+                    <div class="score">Jugador (X): <span id="score-player">0</span></div>
+                    <div class="score">IA (O): <span id="score-ai">0</span></div>
+                    <div class="score">Empates: <span id="score-ties">0</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANEL DERECHO: VISUALIZADOR EDUCATIVO -->
+        <section class="panel edu-panel">
+            <div class="panel-header">
+                <h2>Visualizador de Lógica (Tiempo Real)</h2>
+            </div>
+            
+            <div class="ai-stats-bar">
+                <div class="mini-stat">
+                    <span>Nodos explorados</span>
+                    <strong id="stat-nodes" class="text-neon">0</strong>
+                </div>
+                <div class="mini-stat">
+                    <span>Tiempo de respuesta</span>
+                    <strong id="stat-time" class="text-neon">0 ms</strong>
+                </div>
+                <div class="mini-stat">
+                    <span>Algoritmo</span>
+                    <strong id="stat-algo" class="text-neon">Minimax</strong>
+                </div>
+            </div>
+
+            <div class="code-editor">
+                <div class="editor-header">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                    <span class="filename">ai_logic.py</span>
+                </div>
+                <pre><code id="code-block" class="language-python">
+<span class="line" id="line-1"><span class="keyword">def</span> <span class="function">obtener_mejor_movimiento</span>(tablero, dificultad):</span>
+<span class="line" id="line-2">    <span class="keyword">if</span> dificultad == <span class="string">'facil'</span>:</span>
+<span class="line" id="line-3">        <span class="keyword">return</span> random.choice(obtener_movimientos_disponibles(tablero))</span>
+<span class="line" id="line-4"></span>
+<span class="line" id="line-5">    <span class="keyword">elif</span> dificultad == <span class="string">'medio'</span>:</span>
+<span class="line" id="line-6">        movimiento = encontrar_jugada_ganadora_o_bloqueo(tablero)</span>
+<span class="line" id="line-7">        <span class="keyword">if</span> movimiento: <span class="keyword">return</span> movimiento</span>
+<span class="line" id="line-8">        <span class="keyword">return</span> random.choice(obtener_movimientos_disponibles(tablero))</span>
+<span class="line" id="line-9"></span>
+<span class="line" id="line-10">    <span class="keyword">elif</span> dificultad == <span class="string">'dificil'</span>:</span>
+<span class="line" id="line-11">        mejor_puntaje = -math.inf</span>
+<span class="line" id="line-12">        mejor_movimiento = -1</span>
+<span class="line" id="line-13">        <span class="keyword">for</span> movimiento <span class="keyword">in</span> obtener_movimientos_disponibles(tablero):</span>
+<span class="line" id="line-14">            tablero[movimiento] = <span class="string">'O'</span>  <span class="comment"># Probar jugada IA</span></span>
+<span class="line" id="line-15">            puntaje = minimax(tablero, profundidad=0, es_maximizador=False)</span>
+<span class="line" id="line-16">            tablero[movimiento] = <span class="string">''</span>   <span class="comment"># Deshacer jugada</span></span>
+<span class="line" id="line-17">            <span class="keyword">if</span> puntaje > mejor_puntaje:</span>
+<span class="line" id="line-18">                mejor_puntaje = puntaje</span>
+<span class="line" id="line-19">                mejor_movimiento = movimiento</span>
+<span class="line" id="line-20">        <span class="keyword">return</span> mejor_movimiento</span>
+<span class="line" id="line-21"></span>
+<span class="line" id="line-22"><span class="keyword">def</span> <span class="function">minimax</span>(tablero, profundidad, es_maximizador):</span>
+<span class="line" id="line-23">    <span class="keyword">if</span> verificar_ganador(tablero, <span class="string">'O'</span>): <span class="keyword">return</span> 10 - profundidad</span>
+<span class="line" id="line-24">    <span class="keyword">if</span> verificar_ganador(tablero, <span class="string">'X'</span>): <span class="keyword">return</span> profundidad - 10</span>
+<span class="line" id="line-25">    <span class="keyword">if</span> es_empate(tablero): <span class="keyword">return</span> 0</span>
+<span class="line" id="line-26"></span>
+<span class="line" id="line-27">    <span class="keyword">if</span> es_maximizador:</span>
+<span class="line" id="line-28">        mejor = -math.inf</span>
+<span class="line" id="line-29">        <span class="keyword">for</span> m <span class="keyword">in</span> obtener_movimientos_disponibles(tablero):</span>
+<span class="line" id="line-30">            tablero[m] = <span class="string">'O'</span></span>
+<span class="line" id="line-31">            mejor = max(mejor, minimax(tablero, profundidad+1, False))</span>
+<span class="line" id="line-32">            tablero[m] = <span class="string">''</span></span>
+<span class="line" id="line-33">        <span class="keyword">return</span> mejor</span>
+<span class="line" id="line-34">    <span class="keyword">else</span>:</span>
+<span class="line" id="line-35">        mejor = math.inf</span>
+<span class="line" id="line-36">        <span class="keyword">for</span> m <span class="keyword">in</span> obtener_movimientos_disponibles(tablero):</span>
+<span class="line" id="line-37">            tablero[m] = <span class="string">'X'</span></span>
+<span class="line" id="line-38">            mejor = min(mejor, minimax(tablero, profundidad+1, True))</span>
+<span class="line" id="line-39">            tablero[m] = <span class="string">''</span></span>
+<span class="line" id="line-40">        <span class="keyword">return</span> mejor
+                </code></pre>
+            </div>
+
+            <div class="terminal">
+                <div class="terminal-header">Terminal de Procesos IA</div>
+                <div class="terminal-body" id="terminal-body">
+                    <p class="sys-msg">Sistema iniciado. Esperando movimiento del jugador...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- SECCIÓN: ¿CÓMO FUNCIONA ESTO? -->
+    <section class="explanation-section">
+        <div class="explanation-content">
+            <h2>¿Cómo funciona esto?</h2>
+            <div class="explanation-grid">
+                <div class="exp-card">
+                    <div class="icon">🧠</div>
+                    <h3>¿Qué es un algoritmo?</h3>
+                    <p>Es una serie de instrucciones paso a paso que le dicen a la computadora qué hacer. Como una receta de cocina muy precisa.</p>
+                </div>
+                <div class="exp-card">
+                    <div class="icon">🌳</div>
+                    <h3>El algoritmo Minimax</h3>
+                    <p>La IA en nivel difícil usa Minimax. Imagina todos los futuros posibles del juego como un árbol. La IA recorre todas las ramas para elegir el camino que asegura que nunca pierda.</p>
+                </div>
+                <div class="exp-card">
+                    <div class="icon">🐍</div>
+                    <h3>Python controla el cerebro</h3>
+                    <p>El "backend" (la lógica profunda) de esta aplicación está escrito en Python, un lenguaje fundamental en Inteligencia Artificial y Ciencia de Datos.</p>
+                </div>
+                <div class="exp-card">
+                    <div class="icon">🎨</div>
+                    <h3>HTML/CSS crean la interfaz</h3>
+                    <p>El "frontend" que estás viendo (botones, colores neón, animaciones) está construido con HTML, CSS y JavaScript para darte una experiencia interactiva.</p>
+                </div>
+            </div>
+            <div class="cta-container">
+                <p class="cta-text">Aprende a crear el futuro.</p>
+                <a href="#" class="btn btn-primary cta-btn">Descubre Ingeniería de Datos e IA</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ACHIEVEMENTS TOAST -->
+    <div id="achievement-toast" class="toast hidden">
+        <div class="toast-icon">🏆</div>
+        <div class="toast-content">
+            <h4>Logro Desbloqueado</h4>
+            <p id="toast-msg">¡Primera victoria!</p>
+        </div>
+    </div>
+
+    <!-- AUDIO FILES (Simulated URLs, will be handled by JS synths or basic web audio if needed, but we'll use base64 or just short bleeps via Web Audio API) -->
+    
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
